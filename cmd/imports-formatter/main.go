@@ -24,7 +24,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"runtime"
+	"os/exec"
 	"sort"
 	"strings"
 )
@@ -47,7 +47,7 @@ const (
 var (
 	blankLine         bool
 	currentWorkDir, _ = os.Getwd()
-	goRoot            = runtime.GOROOT() + "/src"
+	goRoot            = os.Getenv(GO_ROOT) + "/src"
 	endBlocks         = []string{"var", "const", "type", "func"}
 	projectRootPath   string
 	projectName       string
@@ -73,6 +73,10 @@ func main() {
 	projectName, err = getProjectName(projectRootPath)
 	if err != nil {
 		panic(err)
+	}
+
+	if os.Getenv(GO_ROOT) == "" {
+		goRoot = generateGoRoot()
 	}
 
 	err = preProcess(goRoot, goPkgMap)
@@ -495,4 +499,15 @@ func ignore(path string) bool {
 		}
 	}
 	return false
+}
+
+func generateGoRoot() string {
+	cmd := exec.Command("go", "env", "GOROOT")
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	goRootPath := strings.TrimSpace(string(output))
+
+	return goRootPath + "/src"
 }
