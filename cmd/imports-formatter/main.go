@@ -24,16 +24,15 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"sort"
 	"strings"
 )
 
 import (
-	"github.com/pkg/errors"
-)
-
-import (
 	"github.com/dubbogo/tools/constant"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -74,6 +73,10 @@ func main() {
 	projectName, err = getProjectName(projectRootPath)
 	if err != nil {
 		panic(err)
+	}
+
+	if os.Getenv(GO_ROOT) == "" {
+		goRoot = generateGoRoot()
 	}
 
 	err = preProcess(goRoot, goPkgMap)
@@ -496,4 +499,15 @@ func ignore(path string) bool {
 		}
 	}
 	return false
+}
+
+func generateGoRoot() string {
+	cmd := exec.Command("go", "env", "GOROOT")
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+	goRootPath := strings.TrimSpace(string(output))
+
+	return goRootPath + "/src"
 }
