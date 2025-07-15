@@ -24,16 +24,15 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"runtime"
 	"sort"
 	"strings"
 )
 
 import (
-	"github.com/pkg/errors"
-)
-
-import (
 	"github.com/dubbogo/tools/constant"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -48,7 +47,7 @@ const (
 var (
 	blankLine         bool
 	currentWorkDir, _ = os.Getwd()
-	goRoot            = os.Getenv(GO_ROOT) + "/src"
+	goRoot            = runtime.GOROOT() + "/src"
 	endBlocks         = []string{"var", "const", "type", "func"}
 	projectRootPath   string
 	projectName       string
